@@ -28,7 +28,7 @@ window.onload = () => {
         ball: {
             x: Math.floor(Math.random() * dom('game').offsetWidth),
             y: Math.floor(Math.random() * dom('game').offsetHeight),
-            speed: 12,
+            speed: dom('game').offsetWidth * 0.0075,
             directionX: 1,
             directionY: 1,
         },
@@ -46,7 +46,8 @@ window.onload = () => {
      */
     function ballHitsTopBottom() {
         let y = pong.ball.y + pong.ball.speed * pong.ball.directionY;
-        return (pong.ball.y + pong.ball.speed * pong.ball.directionY < 0) || (y > pong.playground.height);
+        let height = y + dom('ball').offsetHeight;
+        return (pong.ball.y + pong.ball.speed * pong.ball.directionY < 0) || (height > pong.playground.height);
     } // end ballHitsTopBottom
 
     /**
@@ -54,7 +55,8 @@ window.onload = () => {
      * @returns test's if we've hit the right wall
      */
     function ballHitRightWall() {
-        return pong.ball.x + pong.ball.speed * pong.ball.directionX > pong.playground.width;
+        let x = pong.ball.x + dom('ball').offsetWidth;
+        return x + pong.ball.speed * pong.ball.directionX > pong.playground.width;
     } // end ballHitRight
 
     /**
@@ -72,8 +74,8 @@ window.onload = () => {
         if (!playerAWins.score) playerAWins.score = 0;
 
         playerAWins.score += 1;
-        pong.ball.x = 250;
-        pong.ball.y = 200;
+        pong.ball.x = pong.playground.width / 2;
+        pong.ball.y = Math.floor(Math.random() * pong.playground.height);
         pong.ball.directionX = 1;
         dom('scoreA').innerHTML = playerAWins.score;
     } // end playerAWins
@@ -85,8 +87,8 @@ window.onload = () => {
         if (!playerBWins.score) playerBWins.score = 0;
 
         playerBWins.score += 1;
-        pong.ball.x = pong.paddleB.x;
-        pong.ball.y = 360;//Math.floor(Math.random() * pong.playground.offsetHeight);
+        pong.ball.x = pong.playground.width / 2;
+        pong.ball.y = Math.floor(Math.random() * pong.playground.height);
         pong.ball.directionX = -1;
         dom('scoreB').innerHTML = playerBWins.score;
     } // end playerBWins
@@ -120,6 +122,7 @@ window.onload = () => {
         } // end if
 
         // check right paddle
+        ballX += pong.paddleB.width;
         if (ballX >= pong.paddleB.x && ballX < pong.paddleB.x + pong.paddleB.width) {
             if (ballY <= pong.paddleB.y + pong.paddleB.height && ballY >= pong.paddleB.y) {
                 pong.ball.directionX = -1;
@@ -132,7 +135,7 @@ window.onload = () => {
     } // end moveBall
 
     function movePaddle() {
-        let speed = 10;
+        let speed = pong.playground.width * 0.00625;
         let direction = 1;
 
         let paddleY = pong.paddleB.y + pong.paddleB.height/2;
@@ -140,6 +143,10 @@ window.onload = () => {
             direction = -1;
         }
         pong.paddleB.y += speed * direction;
+        if (pong.paddleB.y < 0)
+            pong.paddleB.y = 0;
+        else if (pong.paddleB.y + pong.paddleB.height > pong.playground.height)
+            pong.paddleB.y = pong.playground.height - pong.paddleB.height;
     } // end movePaddle
     
     /**
@@ -157,9 +164,11 @@ window.onload = () => {
         dom('game').addEventListener('mouseenter', () => pong.isPaused = false);
         dom('game').addEventListener('mouseleave', () => pong.isPaused = true);
         dom('game').addEventListener('mousemove', e => {
-            pong.paddleA.y = e.pageY - pong.playground.offsetTop;
-            if (pong.paddleA.y + pong.paddleA.height > dom('game').offsetHeight)
-                 pong.paddleA.y = dom('game').offsetHeight - pong.paddleA.height;
+            pong.paddleA.y = e.pageY - (pong.playground.offsetTop + pong.paddleA.height / 2);
+            if (pong.paddleA.y < 0)
+                pong.paddleA.y = 0;
+            else if (pong.paddleA.y + pong.paddleA.height >= pong.playground.height)
+                 pong.paddleA.y = pong.playground.height - pong.paddleA.height;
         });
     } // end handleMouse
 
@@ -189,6 +198,7 @@ window.onload = () => {
 
             pong.playground.height = dom('game').offsetHeight;
             pong.playground.width = dom('game').offsetWidth;
+            pong.ball.speed = pong.playground.width * 0.0075;
             renderPaddles();
         });
 

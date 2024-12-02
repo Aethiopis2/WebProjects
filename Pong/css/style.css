@@ -15,6 +15,7 @@ body {
     color: wheat;
     text-transform: uppercase;
     width: 100vw;
+    height: 100vh;
 }
 
 header {
@@ -38,6 +39,7 @@ footer {
 
 #game {
     position: relative;
+    overflow: hidden;
 }
 
 #mid_line {
